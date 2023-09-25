@@ -2,7 +2,7 @@
 //  ConvertedinMobileSDK.h
 //  ConvertedinMobileSDK
 //
-//  Created by Emmanuel Okwara on 18/09/2020.
+//  Created by Eslam Ali on 18/09/2020.
 //  Copyright © 2020 Macco. All rights reserved.
 //
 

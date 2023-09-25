@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1293570E25142B4200377458 /* ConvertedinMobileSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 1293570C25142B4200377458 /* ConvertedinMobileSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1293571525142B5D00377458 /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1293571425142B5D00377458 /* Validator.swift */; };
 		AAAD3EE72AC1791E003A791C /* CustomDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAD3EE32AC1791E003A791C /* CustomDecoder.swift */; };
 		AAAD3EE82AC1791E003A791C /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAD3EE42AC1791E003A791C /* NetworkManager.swift */; };
 		AAAD3EE92AC1791E003A791C /* convertedinMobileSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAD3EE52AC1791E003A791C /* convertedinMobileSDK.swift */; };
@@ -19,7 +18,6 @@
 		1293570925142B4200377458 /* ConvertedinMobileSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ConvertedinMobileSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1293570C25142B4200377458 /* ConvertedinMobileSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConvertedinMobileSDK.h; sourceTree = "<group>"; };
 		1293570D25142B4200377458 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1293571425142B5D00377458 /* Validator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
 		AAAD3EE32AC1791E003A791C /* CustomDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomDecoder.swift; sourceTree = "<group>"; };
 		AAAD3EE42AC1791E003A791C /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		AAAD3EE52AC1791E003A791C /* convertedinMobileSDK.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = convertedinMobileSDK.swift; sourceTree = "<group>"; };
@@ -58,7 +56,6 @@
 			children = (
 				1293570C25142B4200377458 /* ConvertedinMobileSDK.h */,
 				1293570D25142B4200377458 /* Info.plist */,
-				1293571425142B5D00377458 /* Validator.swift */,
 				AAAD3EE52AC1791E003A791C /* convertedinMobileSDK.swift */,
 				AAAD3EE32AC1791E003A791C /* CustomDecoder.swift */,
 				AAAD3EE62AC1791E003A791C /* IdentifyUserModel.swift.swift */,
@@ -150,7 +147,6 @@
 				AAAD3EEA2AC1791E003A791C /* IdentifyUserModel.swift.swift in Sources */,
 				AAAD3EE92AC1791E003A791C /* convertedinMobileSDK.swift in Sources */,
 				AAAD3EE82AC1791E003A791C /* NetworkManager.swift in Sources */,
-				1293571525142B5D00377458 /* Validator.swift in Sources */,
 				AAAD3EE72AC1791E003A791C /* CustomDecoder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
