@@ -4,11 +4,12 @@ import Foundation
 public class convertedinMobileSDK {
     
     //MARK:- Variables
+    static var shared = convertedinMobileSDK()
     
-    private var pixelId : String?
-    private var storeUrl : String?
-    private var cid: String?
-    private var cuid: String?
+    static var pixelId : String?
+    static var storeUrl : String?
+    static var cid: String?
+    static var cuid: String?
     
     public enum eventType: String {
         case purchase = "Purchase"
@@ -25,13 +26,14 @@ public class convertedinMobileSDK {
     }
     
     //MARK:- Initlizers
-    public init(pixelId: String?, storeUrl: String?) {
+    
+    public static func configure(pixelId: String?, storeUrl: String?) {
         self.pixelId = pixelId
         self.storeUrl = storeUrl
     }
     
     //MARK:- Functions
-    public func identifyUser(email: String?, countryCode: String?, phone: String?){
+    public static func identifyUser(email: String?, countryCode: String?, phone: String?){
         guard let pixelId else {return}
         guard let storeUrl else {return}
         
@@ -60,7 +62,7 @@ public class convertedinMobileSDK {
     }
     
     
-    public func saveDeviceToken(token: String) {
+    public static func saveDeviceToken(token: String) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
         guard let cid else {return}
@@ -83,7 +85,7 @@ public class convertedinMobileSDK {
         }
     }
     
-    public func deleteDeviceToken() {
+    public static func deleteDeviceToken() {
         guard let token  = UserDefaults.standard.string(forKey: "current_device_token") else {return}
         guard let pixelId else {return}
         guard let storeUrl else {return}
@@ -105,7 +107,7 @@ public class convertedinMobileSDK {
         }
     }
     
-    public func refreshDeviceToken(newToken: String){
+    public static func refreshDeviceToken(newToken: String){
         deleteDeviceToken()
         guard let pixelId else {return}
         guard let storeUrl else {return}
@@ -132,7 +134,7 @@ public class convertedinMobileSDK {
     }
     
     //MARK:- Events
-    public func addEvent<T>(eventName: String, currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func addEvent<T>(eventName: String, currency: String ,total: Int ,products: [T]) where T : Codable {
         guard let pixelId else {return}
         guard let storeUrl else {return}
         guard let cuid else {return}
@@ -179,23 +181,23 @@ public class convertedinMobileSDK {
         }
     }
     
-    public func viewContentEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func viewContentEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
         addEvent(eventName: eventType.viewContent.rawValue , currency: currency, total: total, products: products)
     }
     
-    public func pageViewEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func pageViewEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
         addEvent(eventName: eventType.viewPage.rawValue , currency: currency, total: total, products: products)
     }
     
-    public func addToCartEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func addToCartEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
         addEvent(eventName: eventType.addToCart.rawValue , currency: currency, total: total, products: products)
     }
     
-    public func initiateCheckoutEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func initiateCheckoutEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
         addEvent(eventName: eventType.checkout.rawValue , currency: currency, total: total, products: products)
     }
     
-    public func purchaseEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func purchaseEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
         addEvent(eventName: eventType.purchase.rawValue , currency: currency, total: total, products: products)
     }
     
