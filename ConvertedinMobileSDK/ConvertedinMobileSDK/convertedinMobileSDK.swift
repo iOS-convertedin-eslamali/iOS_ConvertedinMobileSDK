@@ -19,10 +19,17 @@ public class ConvertedinMobileSDK {
         case viewContent = "ViewContent"
     }
     
-    public struct ProductModel: Codable {
+    public struct ConvertedinProduct: Codable {
         let id: Int?
         let quantity: Int?
         let name: String?
+        
+        
+        init(id: Int?, quantity: Int?, name: String?) {
+            self.id = id
+            self.quantity = quantity
+            self.name = name
+        }
     }
     
     //MARK:- Initlizers
@@ -134,18 +141,14 @@ public class ConvertedinMobileSDK {
     }
     
     //MARK:- Events
-    public static func addEvent<T>(eventName: String, currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func addEvent(eventName: String, currency: String ,total: Int ,products: [ConvertedinProduct]) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
         guard let cuid else {return}
         
         var parameterDictionary:  [String: Any] = [:]
+
         
-        let encoder = JSONEncoder()
-        do {
-            let result = try encoder.encode(products)
-            let productsModelArray: [ProductModel]  = try CustomDecoder.decode(data: result)
-            
             parameterDictionary = [
                 "event" : eventName,
                 "cuid": cuid,
@@ -155,7 +158,7 @@ public class ConvertedinMobileSDK {
                 ] as [String : Any]
             ]
             
-            productsModelArray.enumerated().forEach { (item) in
+        products.enumerated().forEach { (item) in
                 let service = item.element
                 let index = item.offset
                 guard let id = service.id  else {return}
@@ -165,9 +168,6 @@ public class ConvertedinMobileSDK {
                 parameterDictionary["data[content][\(index)][id]"] = id
                 parameterDictionary["data[content][\(index)][quantity]"] = quantity
             }
-        } catch {
-            print(error)
-        }
         
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .event) { data in
             guard  let data = data else {return}
@@ -181,23 +181,23 @@ public class ConvertedinMobileSDK {
         }
     }
     
-    public static func viewContentEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func viewContentEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.viewContent.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func pageViewEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func pageViewEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.viewPage.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func addToCartEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func addToCartEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.addToCart.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func initiateCheckoutEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func initiateCheckoutEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.checkout.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func purchaseEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable {
+    public static func purchaseEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.purchase.rawValue , currency: currency, total: total, products: products)
     }
     
