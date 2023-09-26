@@ -1,10 +1,10 @@
 // Convertedin Mobile SDK
 
 import Foundation
-public class convertedinMobileSDK {
+public class ConvertedinMobileSDK {
     
     //MARK:- Variables
-    static var shared = convertedinMobileSDK()
+    static var shared = ConvertedinMobileSDK()
     
     static var pixelId : String?
     static var storeUrl : String?
