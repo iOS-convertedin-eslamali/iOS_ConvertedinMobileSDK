@@ -1,9 +1,25 @@
 // Convertedin Mobile SDK
 
+public protocol convertedinManager {
+    func identifyUser(email: String?, countryCode: String?, phone: String?)
+    func saveDeviceToken(token: String)
+    func deleteDeviceToken()
+    func refreshDeviceToken(newToken: String)
+    func addEvent<T>(eventName: String, currency: String ,total: Int ,products: [T]) where T : Codable
+    func viewContentEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
+    func pageViewEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
+    func addToCartEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
+    func initiateCheckoutEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
+    func purchaseEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
+}
+
 import Foundation
-public class convertedinMobileSDK {
+public class convertedinMobileSDK: convertedinManager {
     
     //MARK:- Variables
+    
+    static let manager : convertedinManager = convertedinMobileSDK(pixelId: nil, storeUrl: nil)
+    
     private var pixelId : String?
     private var storeUrl : String?
     private var cid: String?
@@ -24,7 +40,7 @@ public class convertedinMobileSDK {
     }
     
     //MARK:- Initlizers
-    public init(pixelId: String, storeUrl: String) {
+    public init(pixelId: String?, storeUrl: String?) {
         self.pixelId = pixelId
         self.storeUrl = storeUrl
     }
@@ -143,25 +159,25 @@ public class convertedinMobileSDK {
             let result = try encoder.encode(products)
             let productsModelArray: [ProductModel]  = try CustomDecoder.decode(data: result)
             
-                parameterDictionary = [
-                    "event" : eventName,
-                    "cuid": cuid,
-                    "data" : [
-                        "currency" : currency,
-                        "value": total,
-                    ] as [String : Any]
-                ]
-                
-                productsModelArray.enumerated().forEach { (item) in
-                    let service = item.element
-                    let index = item.offset
-                    guard let id = service.id  else {return}
-                    guard let name = service.name  else {return}
-                    guard let quantity = service.quantity  else {return}
-                    parameterDictionary["data[content][\(index)][name]"] = name
-                    parameterDictionary["data[content][\(index)][id]"] = id
-                    parameterDictionary["data[content][\(index)][quantity]"] = quantity
-                }
+            parameterDictionary = [
+                "event" : eventName,
+                "cuid": cuid,
+                "data" : [
+                    "currency" : currency,
+                    "value": total,
+                ] as [String : Any]
+            ]
+            
+            productsModelArray.enumerated().forEach { (item) in
+                let service = item.element
+                let index = item.offset
+                guard let id = service.id  else {return}
+                guard let name = service.name  else {return}
+                guard let quantity = service.quantity  else {return}
+                parameterDictionary["data[content][\(index)][name]"] = name
+                parameterDictionary["data[content][\(index)][id]"] = id
+                parameterDictionary["data[content][\(index)][quantity]"] = quantity
+            }
         } catch {
             print(error)
         }
