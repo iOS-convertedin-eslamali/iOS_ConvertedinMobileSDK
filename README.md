@@ -108,10 +108,6 @@ convertedinSDK?.PurchaseEvent()
 
 or you can create your custom events using the following code:
 ```swift
-convertedinSDK?.pageViewEvent()
-convertedinSDK?.PageViewEvent()
-convertedinSDK?.AddToCartEvent()
-convertedinSDK?.InitiateCheckoutEvent()
 convertedinSDK?.addEvent()
 ```
 
