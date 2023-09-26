@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "ConvertedinMobileSDK"
-  spec.version      = "1.0.2"
+  spec.version      = "1.0.3"
   spec.summary      = "This is a simple framework for convertedin partners"
 
   spec.homepage     = "https://github.com/iOS-convertedin-eslamali/iOS_ConvertedinMobileSDK"
