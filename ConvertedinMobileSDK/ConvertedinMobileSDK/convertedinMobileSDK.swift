@@ -1,24 +1,9 @@
 // Convertedin Mobile SDK
 
-public protocol convertedinManager {
-    func identifyUser(email: String?, countryCode: String?, phone: String?)
-    func saveDeviceToken(token: String)
-    func deleteDeviceToken()
-    func refreshDeviceToken(newToken: String)
-    func addEvent<T>(eventName: String, currency: String ,total: Int ,products: [T]) where T : Codable
-    func viewContentEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
-    func pageViewEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
-    func addToCartEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
-    func initiateCheckoutEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
-    func purchaseEvent<T>(currency: String ,total: Int ,products: [T]) where T : Codable
-}
-
 import Foundation
-public class convertedinMobileSDK: convertedinManager {
+public class convertedinMobileSDK {
     
     //MARK:- Variables
-    
-    public static let manager : convertedinManager = convertedinMobileSDK(pixelId: nil, storeUrl: nil)
     
     private var pixelId : String?
     private var storeUrl : String?
