@@ -18,7 +18,7 @@ public class convertedinMobileSDK: convertedinManager {
     
     //MARK:- Variables
     
-    static let manager : convertedinManager = convertedinMobileSDK(pixelId: nil, storeUrl: nil)
+    public static let manager : convertedinManager = convertedinMobileSDK(pixelId: nil, storeUrl: nil)
     
     private var pixelId : String?
     private var storeUrl : String?
