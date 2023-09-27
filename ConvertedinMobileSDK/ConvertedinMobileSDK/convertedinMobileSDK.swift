@@ -25,7 +25,7 @@ public class ConvertedinMobileSDK {
         let name: String?
         
         
-        init(id: Int?, quantity: Int?, name: String?) {
+       public init(id: Int?, quantity: Int?, name: String?) {
             self.id = id
             self.quantity = quantity
             self.name = name
