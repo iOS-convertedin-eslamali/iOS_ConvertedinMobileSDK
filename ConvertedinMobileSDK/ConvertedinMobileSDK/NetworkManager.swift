@@ -28,7 +28,7 @@ class NetworkManager {
         case .identify, .event:
             url = String(format: "https://app.converted.in/api/v1/\(pixelId)/\(type.rawValue)")
         case .saveToken, .deleteToken, .refreshToken:
-            url = String(format: "https://app.convertedin.com/api/webhooks/push-notification/\(pixelId)/\(type.rawValue)")
+            url = String(format: "https://app.converted.in/api/webhooks/push-notification/\(pixelId)/\(type.rawValue)")
         }
         guard let serviceUrl = URL(string: url) else { return }
 
