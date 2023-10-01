@@ -99,7 +99,7 @@ For your app to make the best use of ConvertedinMobileSDK, it's essential to set
 ```swift
  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let fcmToken = fcmToken {
-            UserDefaults.standard.set(fcmToken, forKey: "convertedin_fcmToken")
+            ConvertedinMobileSDK.setFcmToken(token: fcmToken )
         }
     }
 ```
