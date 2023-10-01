@@ -77,7 +77,7 @@ public class ConvertedinMobileSDK {
     public static func saveDeviceToken(token: String) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        guard let cid else {return}
+        guard let cid, !cid.isEmpty else {return}
         
         let parameterDictionary:  [String: Any] = [
             "customer_id" : cid,
