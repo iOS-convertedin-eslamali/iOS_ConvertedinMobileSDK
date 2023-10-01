@@ -1,4 +1,4 @@
-# ConvertedinMobileSDK
+ # ConvertedinMobileSDK
 
 Welcome to the ConvertedinMobileSDK documentation!
 
@@ -7,6 +7,7 @@ Welcome to the ConvertedinMobileSDK documentation!
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
+- [License](#license)
 
 
 ## Introduction
@@ -128,4 +129,9 @@ ConvertedinMobileSDK.addEvent()
 ```swift
 ConvertedinMobileSDK.deleteDeviceToken()
 ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
