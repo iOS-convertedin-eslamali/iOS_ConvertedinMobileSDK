@@ -14,9 +14,11 @@ Welcome to the ConvertedinMobileSDK documentation!
 
 Convertedin SDK for events and push notifications is a powerful tool for developers to create engaging and personalized experiences for your app users. With this SDK, developers can easily track user behavior and send targeted push notifications to drive engagement and increase retention. Push notifications allow developers to reach users even when they're not actively using the app, keeping them up to date with the latest news, updates, and promotions. By leveraging Convertedin SDK for events and push notifications, developers can create more meaningful and impactful experiences for their users, leading to higher engagement, increased user satisfaction, and ultimately, greater success for their app.
 
-## Installation
+## Installation   
+You can easily integrate Convertedin Mobile SDK into your projects using one of the following methods:
 
- __Installation with Swift Package Manager__
+**Method 1:**   
+ **Swift Package Manager**
 
 To integrate ConvertedinMobileSDK into your iOS project using Swift Package Manager, follow these simple steps:
 
@@ -36,11 +38,13 @@ To integrate ConvertedinMobileSDK into your iOS project using Swift Package Mana
 
 And that's it! You've successfully integrated ConvertedinMobileSDK into your project using Swift Package Manager. 🚀
 
+---
 
-__Installation with Cocoapods__  
+**Method 2:**   
+**Cocoapods**
 
 To effortlessly integrate ConvertedinMobileSDK into your iOS project using CocoaPods, follow these straightforward steps:  
-First you need to install cocaopods, Here's a comprehensive guide on how to install cocoapods [ here ](https://guides.cocoapods.org/using/getting-started.html)  
+First you need to install cocaopods, Here's a comprehensive guide on how to install cocoapods [ Cocoapods documentation ](https://guides.cocoapods.org/using/getting-started.html)  
 
 After installing the Cocoapods successfully  
 
@@ -72,12 +76,16 @@ And that's it! You've successfully integrated ConvertedinMobileSDK into your pro
 ```
 Make sure to set the pixelId and storeUrl as the appropriate initialization parameters for your use case. These parameters are crucial for configuring the SDK with your desired settings.
 
+___
+
 **Step 2:**   
 **Getting Notifications with Google Firebase Integration**
 
 To enable notifications in this framework, you need to integrate it with Google Firebase services. Firebase provides a robust platform for handling notifications, making it easy to send and receive messages in your application.
 
 If you don't already have a Firebase project, create one and follow the easy steps on the [Firebase Console](https://console.firebase.google.com/).
+
+---
 
 **Step 3:**    
 **Receive Notifications**   
@@ -93,6 +101,8 @@ For your app to make the best use of ConvertedinMobileSDK, it's essential to set
     }
 ```
 
+---
+
 **Step 4:**     
 **Authenticate user by Sending user data**
 - After successfully receiving a response from the login method or any other relevant action, you can use our ConvertedinMobileSDK's method to identify the user. Follow these steps to ensure user identification:
@@ -101,6 +111,8 @@ For your app to make the best use of ConvertedinMobileSDK, it's essential to set
 ConvertedinMobileSDK.identifyUser(email: "test@converted.in", countryCode: nil, phone: nil)
 ```
 In this code snippet, you have the option to identify the user using either their email or phone number. Replace "test@converted.in" with the user's email address and provide the appropriate country code if you are identifying the user by phone number.
+
+---
 
 **Step 5:**  
 **Track user events and actions through your app.** 
@@ -134,8 +146,9 @@ ConvertedinMobileSDK.addEvent()
 
 - Please, be mindful of methods that require parameters related to currency, total price, and a set of products. These parameters are crucial for accurate event tracking and analytics in your e-commerce application.
 
+---
 
-**Step 5:**    
+**Step 6:**    
 **Logging Out or Notification Cessation**   
 
 - If you want to stop geting our notification or when the user logout, call our ConvertedinMobileSDK's deleteDeviceToken method to unregister the device for notifications. This ensures that the user no longer receives notifications from your app.
