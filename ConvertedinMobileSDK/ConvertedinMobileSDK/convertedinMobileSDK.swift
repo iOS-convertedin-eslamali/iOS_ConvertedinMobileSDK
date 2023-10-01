@@ -8,7 +8,12 @@ public class ConvertedinMobileSDK {
     
     static var pixelId : String?
     static var storeUrl : String?
-    static var cid: String?
+    static var cid: String? = "" {
+        didSet {
+            guard let token  = UserDefaults.standard.string(forKey: "convertedin_fcmToken") else {return}
+            saveDeviceToken(token: token)
+        }
+    }
     static var cuid: String?
     
     public enum eventType: String {
