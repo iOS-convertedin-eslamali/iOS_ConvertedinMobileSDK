@@ -58,7 +58,9 @@ And that's it! You've successfully integrated ConvertedinMobileSDK into your pro
 
 
 ## Getting Started
-**Step 1:**
+**Step 1:**   
+**Convertedin Mobile SDK Configuration**
+
 - Open your app's AppDelegate.swift file.
 - Import ConvertedinMobileSDK at the top of AppDelegate.swift using the following line of code   
 ```swift
@@ -71,6 +73,14 @@ And that's it! You've successfully integrated ConvertedinMobileSDK into your pro
 Make sure to set the pixelId and storeUrl as the appropriate initialization parameters for your use case. These parameters are crucial for configuring the SDK with your desired settings.
 
 **Step 2:**   
+**Getting Notifications with Google Firebase Integration**
+
+To enable notifications in this framework, you need to integrate it with Google Firebase services. Firebase provides a robust platform for handling notifications, making it easy to send and receive messages in your application.
+
+If you don't already have a Firebase project, create one and follow the easy steps on the [Firebase Console](https://console.firebase.google.com/).
+
+**Step 3:**    
+**Receive Notifications**   
 For your app to make the best use of ConvertedinMobileSDK, it's essential to set up push notifications in the `AppDelegate`. Here's a comprehensive guide on how to Push Notification [Push Notifications Documentation](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_certificate-based_connection_to_apns).   
 
 - After Setup the Push Notification successfully, Implement the didReceiveRegistrationToken method in your AppDelegate.swift file to receive the FCM device token. This method is called when a new token is generated or an existing token is updated, with the following code 
@@ -83,7 +93,8 @@ For your app to make the best use of ConvertedinMobileSDK, it's essential to set
     }
 ```
 
-**Step 3:**   
+**Step 4:**     
+**Authenticate user by Sending user data**
 - After successfully receiving a response from the login method or any other relevant action, you can use our ConvertedinMobileSDK's method to identify the user. Follow these steps to ensure user identification:
 
 ```swift
@@ -91,8 +102,10 @@ ConvertedinMobileSDK.identifyUser(email: "test@converted.in", countryCode: nil, 
 ```
 In this code snippet, you have the option to identify the user using either their email or phone number. Replace "test@converted.in" with the user's email address and provide the appropriate country code if you are identifying the user by phone number.
 
-**Step 4:** **Add Event**  ConvertedinMobileSDK offers a set of predefined events that are commonly used in most e-commerce applications. These predefined events include:
+**Step 5:**  
+**Track user events and actions through your app.** 
 
+ConvertedinMobileSDK offers a set of predefined events that are commonly used in most e-commerce applications. These predefined events include:
 - `ViewContent`: To track when a user views content, such as a product.
 - `PageView`: To track when a user views a specific page.
 - `AddToCart`: To track when a user adds an item to their cart.
@@ -122,7 +135,8 @@ ConvertedinMobileSDK.addEvent()
 - Please, be mindful of methods that require parameters related to currency, total price, and a set of products. These parameters are crucial for accurate event tracking and analytics in your e-commerce application.
 
 
-**Step 5:** Logging Out or Notification Cessation
+**Step 5:**    
+**Logging Out or Notification Cessation**   
 
 - If you want to stop geting our notification or when the user logout, call our ConvertedinMobileSDK's deleteDeviceToken method to unregister the device for notifications. This ensures that the user no longer receives notifications from your app.
 
