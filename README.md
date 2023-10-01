@@ -5,14 +5,17 @@ Welcome to the ConvertedinMobileSDK documentation!
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
 - [License](#license)
 
 
 ## Introduction
-
 Convertedin SDK for events and push notifications is a powerful tool for developers to create engaging and personalized experiences for your app users. With this SDK, developers can easily track user behavior and send targeted push notifications to drive engagement and increase retention. Push notifications allow developers to reach users even when they're not actively using the app, keeping them up to date with the latest news, updates, and promotions. By leveraging Convertedin SDK for events and push notifications, developers can create more meaningful and impactful experiences for their users, leading to higher engagement, increased user satisfaction, and ultimately, greater success for their app.
+
+## Requirements
+The ConvertedinMobileSDK requires Xcode 10.1 or later and is compatible with apps targeting iOS 13 or above.
 
 ## Installation   
 You can easily integrate Convertedin Mobile SDK into your projects using one of the following methods:
