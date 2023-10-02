@@ -71,7 +71,7 @@ And that's it! You've successfully integrated ConvertedinMobileSDK into your pro
 - Open your app's AppDelegate.swift file.
 - Import ConvertedinMobileSDK at the top of AppDelegate.swift using the following line of code   
 ```swift
- import convertedinMobileSDK
+ import ConvertedinMobileSDK
 ```
 - In the application(_:didFinishLaunchingWithOptions:) method, integrate our framework by adding the following code:
 ```swift
