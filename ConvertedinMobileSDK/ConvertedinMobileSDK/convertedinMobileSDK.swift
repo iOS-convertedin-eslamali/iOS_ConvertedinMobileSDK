@@ -43,14 +43,21 @@ public class ConvertedinMobileSDK {
     public static func configure(pixelId: String?, storeUrl: String?) {
         self.pixelId = pixelId
         self.storeUrl = storeUrl
+        identifyUser(email: nil, countryCode: nil, phone: nil)
     }
     
     //MARK:- Functions
     public static func identifyUser(email: String?, countryCode: String?, phone: String?){
         guard let pixelId else {return}
         guard let storeUrl else {return}
+        guard let deviceToken = deviceToken else {return}
         
-        var parameterDictionary = ["csid": "deviceToken" ]
+        var parameterDictionary: [String : Any] = [ : ]
+       
+        if let csid = self.cuid {
+            parameterDictionary["csid"] = csid
+        }
+        
         if let email = email {
             parameterDictionary["email"] = email
         }
