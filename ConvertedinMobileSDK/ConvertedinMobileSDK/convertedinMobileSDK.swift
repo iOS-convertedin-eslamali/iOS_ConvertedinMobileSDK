@@ -50,9 +50,8 @@ public class ConvertedinMobileSDK {
     public static func identifyUser(email: String?, countryCode: String?, phone: String?){
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        guard let deviceToken = deviceToken else {return}
         
-        var parameterDictionary: [String : Any] = [ : ]
+        var parameterDictionary: [String : Any] = [ "src": "push" ]
        
         if let csid = self.cuid {
             parameterDictionary["csid"] = csid
@@ -60,11 +59,18 @@ public class ConvertedinMobileSDK {
         
         if let email = email {
             parameterDictionary["email"] = email
+            if let cid = self.cid {
+                parameterDictionary["csid"] = cid
+            }
         }
         
         if let countryCode = countryCode, let phone = phone {
             parameterDictionary["country_code"] = countryCode
             parameterDictionary["phone"] = phone
+            
+            if let cid = self.cid {
+                parameterDictionary["csid"] = cid
+            }
         }
         
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .identify) { data in
