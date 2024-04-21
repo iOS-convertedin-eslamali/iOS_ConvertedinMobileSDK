@@ -9,13 +9,22 @@ public class ConvertedinMobileSDK {
     static var pixelId : String?
     static var storeUrl : String?
     static var deviceToken: String?
+    static private var isLoggedin: Bool = false
     static var cid: String? {
+        didSet {
+            guard UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") == nil else { return }
+            saveCidLoccally(cid: cid)
+        }
+    }
+    
+    static var cuid: String? {
         didSet {
             guard let token  = deviceToken, !token.isEmpty else {return}
             saveDeviceToken(token: token)
+            guard UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") == nil else { return }
+            saveCsidLoccally(csid: cuid)
         }
     }
-    static var cuid: String?
     
     public enum eventType: String {
         case purchase = "Purchase"
@@ -31,7 +40,7 @@ public class ConvertedinMobileSDK {
         let name: String?
         
         
-       public init(id: Int?, quantity: Int?, name: String?) {
+        public init(id: Int?, quantity: Int?, name: String?) {
             self.id = id
             self.quantity = quantity
             self.name = name
@@ -43,7 +52,6 @@ public class ConvertedinMobileSDK {
     public static func configure(pixelId: String?, storeUrl: String?) {
         self.pixelId = pixelId
         self.storeUrl = storeUrl
-        identifyUser(email: nil, countryCode: nil, phone: nil)
     }
     
     //MARK:- Functions
@@ -52,24 +60,26 @@ public class ConvertedinMobileSDK {
         guard let storeUrl else {return}
         
         var parameterDictionary: [String : Any] = [ "src": "push" ]
-       
-        if let csid = self.cuid {
-            parameterDictionary["csid"] = csid
+        
+        if let storedCsid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") {
+            parameterDictionary["csid"] = storedCsid
         }
         
         if let email = email {
+            self.isLoggedin = true
             parameterDictionary["email"] = email
-            if let cid = self.cid {
-                parameterDictionary["csid"] = cid
+            if let storedCid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") {
+                parameterDictionary["csid"] = storedCid
             }
         }
         
         if let countryCode = countryCode, let phone = phone {
+            self.isLoggedin = true
             parameterDictionary["country_code"] = countryCode
             parameterDictionary["phone"] = phone
             
-            if let cid = self.cid {
-                parameterDictionary["csid"] = cid
+            if let storedCid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") {
+                parameterDictionary["csid"] = storedCid
             }
         }
         
@@ -80,7 +90,10 @@ public class ConvertedinMobileSDK {
                 print(identifyUserModel)
                 self.cid = identifyUserModel.cid
                 self.cuid = identifyUserModel.csid
-                
+                if isLoggedin {
+                    saveCidLoccally(cid: identifyUserModel.cid)
+                    saveCsidLoccally(csid: identifyUserModel.csid)
+                }
             } catch {
                 print(error)
             }
@@ -89,15 +102,26 @@ public class ConvertedinMobileSDK {
     
     public static func setFcmToken(token: String) {
         self.deviceToken = token
+        identifyUser(email: nil, countryCode: nil, phone: nil)
+    }
+    
+    private static func saveCidLoccally(cid: String?) {
+        guard let cid = cid, !cid.isEmpty else { return }
+        UserDefaults.standard.setValue(cid, forKey: "ConvertedinMobileSDK_cid")
+    }
+    
+    private static func saveCsidLoccally(csid: String?) {
+        guard let csid = csid, !csid.isEmpty else { return }
+        UserDefaults.standard.setValue(csid, forKey: "ConvertedinMobileSDK_csid")
     }
     
     public static func saveDeviceToken(token: String) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        guard let cid, !cid.isEmpty else {return}
+        guard let cuid, !cuid.isEmpty else {return}
         
         let parameterDictionary:  [String: Any] = [
-            "customer_id" : cid,
+            "customer_id" : cuid,
             "device_token": token,
             "token_type" : "iOS",
         ]
@@ -106,8 +130,9 @@ public class ConvertedinMobileSDK {
             guard  let data = data else {return}
             do {
                 let eventModel: saveTokenModel  = try CustomDecoder.decode(data: data)
-                print(eventModel.message ?? "")
-                UserDefaults.standard.setValue(token, forKey: "current_device_token")
+                print(eventModel.message ?? "Empty Message ")
+                
+                UserDefaults.standard.setValue(token, forKey: "ConvertedinMobileSDK_token")
             } catch {
                 print(error)
             }
@@ -115,7 +140,7 @@ public class ConvertedinMobileSDK {
     }
     
     public static func deleteDeviceToken() {
-        guard let token  = UserDefaults.standard.string(forKey: "current_device_token") else {return}
+        guard let token  = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_token") else {return}
         guard let pixelId else {return}
         guard let storeUrl else {return}
         
@@ -129,7 +154,7 @@ public class ConvertedinMobileSDK {
             do {
                 let eventModel: saveTokenModel  = try CustomDecoder.decode(data: data)
                 print(eventModel.message ?? "")
-                UserDefaults.standard.setValue(token, forKey: "current_device_token")
+                UserDefaults.standard.setValue(token, forKey: "ConvertedinMobileSDK_token")
             } catch {
                 print(error)
             }
@@ -140,7 +165,7 @@ public class ConvertedinMobileSDK {
         deleteDeviceToken()
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        let oldToken = UserDefaults.standard.string(forKey: "current_device_token") ?? ""
+        let oldToken = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_token") ?? ""
         
         let parameterDictionary:  [String: Any] = [
             
@@ -155,7 +180,7 @@ public class ConvertedinMobileSDK {
             do {
                 let eventModel: saveTokenModel  = try CustomDecoder.decode(data: data)
                 print(eventModel.message ?? "")
-                UserDefaults.standard.setValue(newToken, forKey: "current_device_token")
+                UserDefaults.standard.setValue(newToken, forKey: "ConvertedinMobileSDK_token")
             } catch {
                 print(error)
             }
@@ -166,31 +191,32 @@ public class ConvertedinMobileSDK {
     public static func addEvent(eventName: String, currency: String ,total: Int ,products: [ConvertedinProduct]) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        guard let cuid else {return}
+        guard let cuid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") else {return}
         
         var parameterDictionary:  [String: Any] = [:]
-
         
-            parameterDictionary = [
-                "event" : eventName,
-                "cuid": cuid,
-                "data" : [
-                    "currency" : currency,
-                    "value": total,
-                ] as [String : Any]
-            ]
-            
+        
+        parameterDictionary = [
+            "event" : eventName,
+            "cuid": cuid,
+            "cid": cuid,
+            "data" : [
+                "currency" : currency,
+                "value": total,
+            ] as [String : Any]
+        ]
+        
         products.enumerated().forEach { (item) in
-                let service = item.element
-                let index = item.offset
-                guard let id = service.id  else {return}
-                guard let name = service.name  else {return}
-                guard let quantity = service.quantity  else {return}
-                parameterDictionary["data[content][\(index)][name]"] = name
-                parameterDictionary["data[content][\(index)][id]"] = id
-                parameterDictionary["data[content][\(index)][quantity]"] = quantity
-            }
-        
+            let service = item.element
+            let index = item.offset
+            guard let id = service.id  else {return}
+            guard let name = service.name  else {return}
+            guard let quantity = service.quantity  else {return}
+            parameterDictionary["data[content][\(index)][name]"] = name
+            parameterDictionary["data[content][\(index)][id]"] = id
+            parameterDictionary["data[content][\(index)][quantity]"] = quantity
+        }
+
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .event) { data in
             guard  let data = data else {return}
             do {
@@ -222,5 +248,4 @@ public class ConvertedinMobileSDK {
     public static func purchaseEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.purchase.rawValue , currency: currency, total: total, products: products)
     }
-    
 }
