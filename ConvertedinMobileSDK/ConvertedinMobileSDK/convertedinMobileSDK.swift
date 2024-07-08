@@ -32,6 +32,7 @@ public class ConvertedinMobileSDK {
         case addToCart = "AddToCart"
         case viewPage = "PageView"
         case viewContent = "ViewContent"
+        case register = "Register"
     }
     
     public struct ConvertedinProduct: Codable {
@@ -227,6 +228,10 @@ public class ConvertedinMobileSDK {
                 print(error)
             }
         }
+    }
+    
+    public static func registerEvent() {
+        addEvent(eventName: eventType.register.rawValue , currency: "", total: 0, products: [])
     }
     
     public static func viewContentEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
