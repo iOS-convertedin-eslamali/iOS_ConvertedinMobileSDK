@@ -10,6 +10,7 @@ public class ConvertedinMobileSDK {
     static var storeUrl : String?
     static var deviceToken: String?
     static private var isLoggedin: Bool = false
+    static private var isFirstTimeOpenApp: Bool = true
     static var cid: String? {
         didSet {
             guard UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") == nil else { return }
@@ -33,6 +34,8 @@ public class ConvertedinMobileSDK {
         case viewPage = "PageView"
         case viewContent = "ViewContent"
         case register = "Register"
+        case appOpen = "OpenApp"
+        case clickOnPush = "ClickOnPush"
     }
     
     public struct ConvertedinProduct: Codable {
@@ -66,22 +69,24 @@ public class ConvertedinMobileSDK {
             parameterDictionary["csid"] = storedCsid
         }
         
+        if let storedCid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") {
+            parameterDictionary["anonymous_cid"] = storedCid
+        }
+        
         if let email = email {
             self.isLoggedin = true
             parameterDictionary["email"] = email
-            if let storedCid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") {
-                parameterDictionary["csid"] = storedCid
-            }
         }
         
-        if let countryCode = countryCode, let phone = phone {
+        if let countryCode = countryCode{
             self.isLoggedin = true
             parameterDictionary["country_code"] = countryCode
+           
+        }
+        
+        if let phone = phone {
+            self.isLoggedin = true
             parameterDictionary["phone"] = phone
-            
-            if let storedCid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") {
-                parameterDictionary["csid"] = storedCid
-            }
         }
         
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .identify) { data in
@@ -104,6 +109,7 @@ public class ConvertedinMobileSDK {
     public static func setFcmToken(token: String) {
         self.deviceToken = token
         identifyUser(email: nil, countryCode: nil, phone: nil)
+        appOpen()
     }
     
     private static func saveCidLoccally(cid: String?) {
@@ -111,6 +117,11 @@ public class ConvertedinMobileSDK {
         UserDefaults.standard.setValue(cid, forKey: "ConvertedinMobileSDK_cid")
     }
     
+    private static func saveCampaignIdLoccally(campaignId: String?) {
+        guard let campaignId = campaignId, !campaignId.isEmpty else { return }
+        UserDefaults.standard.setValue(campaignId, forKey: "ConvertedinMobileSDK_campaignId")
+    }
+        
     private static func saveCsidLoccally(csid: String?) {
         guard let csid = csid, !csid.isEmpty else { return }
         UserDefaults.standard.setValue(csid, forKey: "ConvertedinMobileSDK_csid")
@@ -192,20 +203,26 @@ public class ConvertedinMobileSDK {
     public static func addEvent(eventName: String, currency: String ,total: Int ,products: [ConvertedinProduct]) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        guard let cuid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") else {return}
         
         var parameterDictionary:  [String: Any] = [:]
         
         
         parameterDictionary = [
             "event" : eventName,
-            "cuid": cuid,
-            "cid": cuid,
             "data" : [
                 "currency" : currency,
                 "value": total,
             ] as [String : Any]
         ]
+        
+        if let cuid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") {
+            parameterDictionary["cuid"] = cuid
+            parameterDictionary["cid"] = cuid
+        }
+        
+        if let campaignId = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_campaignId") {
+            parameterDictionary["ca"] = campaignId
+        }
         
         products.enumerated().forEach { (item) in
             let service = item.element
@@ -230,10 +247,25 @@ public class ConvertedinMobileSDK {
         }
     }
     
+    public static func onPushNotificationClicked(campaignId: String) {
+        ClickOnPush(campaignId: campaignId)
+    }
+    
+    private static func ClickOnPush(campaignId: String) {
+        saveCampaignIdLoccally(campaignId: campaignId)
+        addEvent(eventName: eventType.clickOnPush.rawValue , currency: "", total: 0, products: [])
+    }
+    
+        
+    public static func appOpen() {
+        addEvent(eventName: eventType.appOpen.rawValue , currency: "", total: 0, products: [])
+    }
+      
+
     public static func registerEvent() {
         addEvent(eventName: eventType.register.rawValue , currency: "", total: 0, products: [])
     }
-    
+      
     public static func viewContentEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
         addEvent(eventName: eventType.viewContent.rawValue , currency: currency, total: total, products: products)
     }
