@@ -10,7 +10,6 @@ public class ConvertedinMobileSDK {
     static var storeUrl : String?
     static var deviceToken: String?
     static private var isLoggedin: Bool = false
-    static private var isFirstTimeOpenApp: Bool = true
     static var cid: String? {
         didSet {
             guard UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") == nil else { return }

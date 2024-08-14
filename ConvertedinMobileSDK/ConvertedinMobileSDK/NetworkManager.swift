@@ -25,8 +25,11 @@ class NetworkManager {
         guard let storeUrl else {return}
         var url = ""
         switch type {
-        case .identify, .event:
+        case .identify:
+            url = String(format: "https://app.converted.in/api/v2.0/\(pixelId)/\(type.rawValue)")
+        case .event:
             url = String(format: "https://app.converted.in/api/v1/\(pixelId)/\(type.rawValue)")
+            
         case .saveToken, .deleteToken, .refreshToken:
             url = String(format: "https://app.converted.in/api/webhooks/push-notification/\(pixelId)/\(type.rawValue)")
         }
