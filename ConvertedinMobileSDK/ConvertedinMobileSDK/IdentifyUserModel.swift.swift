@@ -11,6 +11,7 @@ import Foundation
 struct identifyUserModel: Codable {
     let cid: String?
     let  csid: String?
+    let is_anonymous: Bool?
 }
 
 

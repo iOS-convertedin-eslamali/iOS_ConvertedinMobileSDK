@@ -3,30 +3,39 @@
 import Foundation
 public class ConvertedinMobileSDK {
     
-    //MARK:- Variables
+    // MARK: - Variables
     static var shared = ConvertedinMobileSDK()
-    
     static var pixelId : String?
     static var storeUrl : String?
     static var deviceToken: String?
-    static private var isLoggedin: Bool = false
+    static var deviceTokenSaved: Bool = false
+    typealias EventParameters = [String: Any]
+ 
+    // --- cid & csid
     static var cid: String? {
         didSet {
-            guard UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") == nil else { return }
             saveCidLoccally(cid: cid)
         }
     }
     
-    static var cuid: String? {
+    static var csid: String? {
         didSet {
-            guard let token  = deviceToken, !token.isEmpty else {return}
-            saveDeviceToken(token: token)
-            guard UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") == nil else { return }
-            saveCsidLoccally(csid: cuid)
+            saveCsidLoccally(csid: csid)
+            if let token  = deviceToken, !token.isEmpty {
+                saveDeviceToken(token: token)
+                
+            }
         }
     }
     
-    public enum eventType: String {
+    static var isAnonymous: Bool? {
+        didSet {
+            guard let isAnonymous else { return }
+            saveIsAnonymousLoccally(isAnonymous: isAnonymous)
+        }
+    }
+    
+    public enum EventType: String {
         case purchase = "Purchase"
         case checkout = "InitiateCheckout"
         case addToCart = "AddToCart"
@@ -35,34 +44,98 @@ public class ConvertedinMobileSDK {
         case register = "Register"
         case appOpen = "OpenApp"
         case clickOnPush = "ClickOnPush"
+//        case login = "Login"
     }
     
+    public enum AuthenticationType {
+        case login
+        case register
+    }
+    
+    // --- Product Model ---
     public struct ConvertedinProduct: Codable {
-        let id: Int?
-        let quantity: Int?
+        let id: Int
+        let quantity: Int
         let name: String?
         
         
-        public init(id: Int?, quantity: Int?, name: String?) {
+        public init(id: Int, quantity: Int, name: String?) {
             self.id = id
             self.quantity = quantity
             self.name = name
         }
     }
     
-    //MARK:- Initlizers
-    
+    // MARK: - Configuration
     public static func configure(pixelId: String?, storeUrl: String?) {
         self.pixelId = pixelId
         self.storeUrl = storeUrl
     }
     
-    //MARK:- Functions
-    public static func identifyUser(email: String?, countryCode: String?, phone: String?){
+    // MARK: - Private Functions
+    private static func saveCidLoccally(cid: String?) {
+        guard let cid = cid, !cid.isEmpty else { return }
+        UserDefaults.standard.setValue(cid, forKey: "ConvertedinMobileSDK_cid")
+    }
+    
+    private static func saveIsAnonymousLoccally(isAnonymous: Bool) {
+        UserDefaults.standard.setValue(isAnonymous, forKey: "ConvertedinMobileSDK_isAnonymous")
+    }
+    
+    private static func saveCampaignIdLoccally(campaignId: String?) {
+        guard let campaignId = campaignId, !campaignId.isEmpty else { return }
+        UserDefaults.standard.setValue(campaignId, forKey: "ConvertedinMobileSDK_campaignId")
+    }
+    
+    private static func saveCsidLoccally(csid: String?) {
+        guard let csid = csid, !csid.isEmpty else { return }
+        UserDefaults.standard.setValue(csid, forKey: "ConvertedinMobileSDK_csid")
+    }
+    
+    // Add product details to parameters
+    private static func addProductData(_ parameters: inout EventParameters, products: [ConvertedinProduct]) {
+        guard !products.isEmpty else { return }
+        
+        let productData = products.enumerated().compactMap { (index, product) -> EventParameters? in
+            var productDict: EventParameters = [
+                "id": product.id,
+                "quantity": product.quantity
+            ]
+            if let name = product.name {
+                productDict["name"] = name
+            }
+            return ["data[content][\(index)]": productDict]
+        }
+        
+        productData.forEach { parameters.merge($0) { (_, new) in new } }
+    }
+    
+    private static func generateCuid() -> String {
+        if let cuid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cuid") {
+            return cuid
+        } else {
+            let cuid = UUID().uuidString
+            UserDefaults.standard.setValue(cuid, forKey: "ConvertedinMobileSDK_cuid")
+            return cuid
+        }
+    }
+    
+    // MARK: - Public Functions
+    public static func setFcmToken(token: String) {
+        self.deviceToken = token
+        identifyUser(email: nil, countryCode: nil, phone: nil)
+        appOpen()
+    }
+    
+    @available(*, deprecated, message: "This function will be deprecated in a future version.")
+    public static func identifyUser(email: String?, countryCode: String?, phone: String?, authType: AuthenticationType? = nil){
         guard let pixelId else {return}
         guard let storeUrl else {return}
         
-        var parameterDictionary: [String : Any] = [ "src": "push" ]
+        var parameterDictionary: [String : Any] = [
+            "src": "push",
+            "cuid" : generateCuid()
+        ]
         
         if let storedCsid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") {
             parameterDictionary["csid"] = storedCsid
@@ -73,31 +146,27 @@ public class ConvertedinMobileSDK {
         }
         
         if let email = email {
-            self.isLoggedin = true
             parameterDictionary["email"] = email
         }
         
         if let countryCode = countryCode{
-            self.isLoggedin = true
             parameterDictionary["country_code"] = countryCode
-           
         }
         
         if let phone = phone {
-            self.isLoggedin = true
             parameterDictionary["phone"] = phone
         }
-        
+            
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .identify) { data in
             guard  let data = data else {return}
             do {
                 let identifyUserModel: identifyUserModel  = try CustomDecoder.decode(data: data)
-                print(identifyUserModel)
                 self.cid = identifyUserModel.cid
-                self.cuid = identifyUserModel.csid
-                if isLoggedin {
-                    saveCidLoccally(cid: identifyUserModel.cid)
-                    saveCsidLoccally(csid: identifyUserModel.csid)
+                self.csid = identifyUserModel.csid
+                self.isAnonymous = identifyUserModel.is_anonymous
+                
+                if authType == .register {
+                    registerEvent()
                 }
             } catch {
                 print(error)
@@ -105,45 +174,52 @@ public class ConvertedinMobileSDK {
         }
     }
     
-    public static func setFcmToken(token: String) {
-        self.deviceToken = token
-        identifyUser(email: nil, countryCode: nil, phone: nil)
-        appOpen()
+    public static func login(email: String) {
+        identifyUser(email: email, countryCode: nil, phone: nil, authType: .login)
     }
     
-    private static func saveCidLoccally(cid: String?) {
-        guard let cid = cid, !cid.isEmpty else { return }
-        UserDefaults.standard.setValue(cid, forKey: "ConvertedinMobileSDK_cid")
+    public static func login(phone: String, countryCode: String?) {
+        identifyUser(email: nil, countryCode: countryCode, phone: phone, authType: .login)
+    }
+     
+    public static func register(email: String) {
+        identifyUser(email: email, countryCode: nil, phone: nil, authType: .register)
     }
     
-    private static func saveCampaignIdLoccally(campaignId: String?) {
-        guard let campaignId = campaignId, !campaignId.isEmpty else { return }
-        UserDefaults.standard.setValue(campaignId, forKey: "ConvertedinMobileSDK_campaignId")
+    public static func register(phone: String, countryCode: String?) {
+        identifyUser(email: nil, countryCode: countryCode, phone: phone, authType: .register)
     }
-        
-    private static func saveCsidLoccally(csid: String?) {
-        guard let csid = csid, !csid.isEmpty else { return }
-        UserDefaults.standard.setValue(csid, forKey: "ConvertedinMobileSDK_csid")
+    
+    public static func setUserData(phone: String, countryCode: String?) {
+        guard UserDefaults.standard.bool(forKey: "ConvertedinMobileSDK_isAnonymous") == true else { return }
+        identifyUser(email: nil, countryCode: countryCode, phone: phone)
+    }
+    
+    public static func setUserData(email: String) {
+        guard UserDefaults.standard.bool(forKey: "ConvertedinMobileSDK_isAnonymous") == true else { return }
+        identifyUser(email: email, countryCode: nil, phone: nil)
     }
     
     public static func saveDeviceToken(token: String) {
+        guard deviceTokenSaved == false else { return }
         guard let pixelId else {return}
         guard let storeUrl else {return}
-        guard let cuid, !cuid.isEmpty else {return}
+        guard let csid, !csid.isEmpty else {return}
         
-        let parameterDictionary:  [String: Any] = [
-            "customer_id" : cuid,
+        let parameterDictionary:  EventParameters = [
+            "customer_id" : csid,
             "device_token": token,
             "token_type" : "iOS",
+            "cuid" : generateCuid()
         ]
         
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .saveToken) { data in
             guard  let data = data else {return}
             do {
                 let eventModel: saveTokenModel  = try CustomDecoder.decode(data: data)
-                print(eventModel.message ?? "Empty Message ")
-                
                 UserDefaults.standard.setValue(token, forKey: "ConvertedinMobileSDK_token")
+                deviceTokenSaved = true
+                print(eventModel.message ?? "")
             } catch {
                 print(error)
             }
@@ -155,7 +231,7 @@ public class ConvertedinMobileSDK {
         guard let pixelId else {return}
         guard let storeUrl else {return}
         
-        let parameterDictionary:  [String: Any] = [
+        let parameterDictionary:  EventParameters = [
             "device_token": token,
             "token_type" : "iOS",
         ]
@@ -165,7 +241,6 @@ public class ConvertedinMobileSDK {
             do {
                 let eventModel: saveTokenModel  = try CustomDecoder.decode(data: data)
                 print(eventModel.message ?? "")
-                UserDefaults.standard.setValue(token, forKey: "ConvertedinMobileSDK_token")
             } catch {
                 print(error)
             }
@@ -178,7 +253,7 @@ public class ConvertedinMobileSDK {
         guard let storeUrl else {return}
         let oldToken = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_token") ?? ""
         
-        let parameterDictionary:  [String: Any] = [
+        let parameterDictionary:  EventParameters = [
             
             "device_token": oldToken,
             "token_type" : "iOS",
@@ -199,47 +274,46 @@ public class ConvertedinMobileSDK {
     }
     
     //MARK:- Events
-    public static func addEvent(eventName: String, currency: String ,total: Int ,products: [ConvertedinProduct]) {
+    public static func addEvent(eventName: String, orderId: String? = nil, currency: String ,total: String ,products: [ConvertedinProduct]) {
         guard let pixelId else {return}
         guard let storeUrl else {return}
         
-        var parameterDictionary:  [String: Any] = [:]
+        var parameterDictionary:  EventParameters = [ "event" : eventName ]
+        let eventType = EventType(rawValue: eventName)
         
-        
-        parameterDictionary = [
-            "event" : eventName,
-            "data" : [
-                "currency" : currency,
+        switch eventType {
+        case .viewPage, .appOpen, .clickOnPush, .register:
+            break // No additional data needed for these events
+        case .purchase:
+            guard let orderId = orderId, !currency.isEmpty, !total.isEmpty else { return }
+            parameterDictionary["data"] = [
+                "currency": currency,
                 "value": total,
-            ] as [String : Any]
-        ]
+                "order_id": orderId ]
+            addProductData(&parameterDictionary, products: products)
+        default:
+            guard !currency.isEmpty, !total.isEmpty else { return }
+            parameterDictionary["data"] = [
+                "currency": currency,
+                "value": total
+            ]
+            addProductData(&parameterDictionary, products: products)
+        }
         
-        if let cuid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_csid") {
-            parameterDictionary["cuid"] = cuid
-            parameterDictionary["cid"] = cuid
+        // --- Optional Paramters ---
+        if let cid = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_cid") {
+            parameterDictionary["cid"] = cid
         }
         
         if let campaignId = UserDefaults.standard.string(forKey: "ConvertedinMobileSDK_campaignId") {
             parameterDictionary["ca"] = campaignId
         }
         
-        products.enumerated().forEach { (item) in
-            let service = item.element
-            let index = item.offset
-            guard let id = service.id  else {return}
-            guard let name = service.name  else {return}
-            guard let quantity = service.quantity  else {return}
-            parameterDictionary["data[content][\(index)][name]"] = name
-            parameterDictionary["data[content][\(index)][id]"] = id
-            parameterDictionary["data[content][\(index)][quantity]"] = quantity
-        }
-
         NetworkManager.shared.PostAPI(pixelId: pixelId, storeUrl: storeUrl, parameters: parameterDictionary, type: .event) { data in
             guard  let data = data else {return}
             do {
                 let eventModel: eventModel  = try CustomDecoder.decode(data: data)
                 print(eventModel.msg ?? "")
-                
             } catch {
                 print(error)
             }
@@ -252,36 +326,34 @@ public class ConvertedinMobileSDK {
     
     private static func ClickOnPush(campaignId: String) {
         saveCampaignIdLoccally(campaignId: campaignId)
-        addEvent(eventName: eventType.clickOnPush.rawValue , currency: "", total: 0, products: [])
+        addEvent(eventName: EventType.clickOnPush.rawValue , currency: "", total: "", products: [])
     }
     
-        
     public static func appOpen() {
-        addEvent(eventName: eventType.appOpen.rawValue , currency: "", total: 0, products: [])
+        addEvent(eventName: EventType.appOpen.rawValue , currency: "", total: "", products: [])
     }
-      
+    
+    private static func registerEvent() {
+        addEvent(eventName: EventType.register.rawValue , currency: "", total: "", products: [])
+    }
 
-    public static func registerEvent() {
-        addEvent(eventName: eventType.register.rawValue , currency: "", total: 0, products: [])
-    }
-      
-    public static func viewContentEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
-        addEvent(eventName: eventType.viewContent.rawValue , currency: currency, total: total, products: products)
+    public static func viewContentEvent(currency: String ,total: String ,products: [ConvertedinProduct]) {
+        addEvent(eventName: EventType.viewContent.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func pageViewEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
-        addEvent(eventName: eventType.viewPage.rawValue , currency: currency, total: total, products: products)
+    public static func pageViewEvent() {
+        addEvent(eventName: EventType.viewPage.rawValue , currency: "", total: "", products: [])
     }
     
-    public static func addToCartEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
-        addEvent(eventName: eventType.addToCart.rawValue , currency: currency, total: total, products: products)
+    public static func addToCartEvent(currency: String ,total: String ,products: [ConvertedinProduct]) {
+        addEvent(eventName: EventType.addToCart.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func initiateCheckoutEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
-        addEvent(eventName: eventType.checkout.rawValue , currency: currency, total: total, products: products)
+    public static func initiateCheckoutEvent(currency: String ,total: String ,products: [ConvertedinProduct]) {
+        addEvent(eventName: EventType.checkout.rawValue , currency: currency, total: total, products: products)
     }
     
-    public static func purchaseEvent(currency: String ,total: Int ,products: [ConvertedinProduct]) {
-        addEvent(eventName: eventType.purchase.rawValue , currency: currency, total: total, products: products)
+    public static func purchaseEvent(orderId: String, currency: String ,total: String ,products: [ConvertedinProduct]) {
+        addEvent(eventName: EventType.purchase.rawValue, orderId: orderId, currency: currency, total: total, products: products)
     }
 }

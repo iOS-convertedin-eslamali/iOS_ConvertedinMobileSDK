@@ -40,6 +40,10 @@ class NetworkManager {
         request.setValue(storeUrl, forHTTPHeaderField: "Referer")
         request.setValue("Application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Application/json", forHTTPHeaderField: "Accept")
+        request.setValue("1.1.2", forHTTPHeaderField: "X-SDK-Version")
+        request.setValue("2.0", forHTTPHeaderField: "X-SDK-Server-Version")
+        request.setValue("ios", forHTTPHeaderField: "X-Platform")
+        
         guard let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: []) else { return }
         
         request.httpBody = httpBody
